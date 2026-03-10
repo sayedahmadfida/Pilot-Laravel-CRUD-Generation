@@ -1,0 +1,20 @@
+{
+  "name": "fida/laravel-crud-generator",
+  "description": "Laravel CRUD generator",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "Fida\\Crud\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Fida\\Crud\\PilotServiceProvider"
+      ]
+    }
+  },
+  "require": {
+    "php": "^8.2"
+  }
+}

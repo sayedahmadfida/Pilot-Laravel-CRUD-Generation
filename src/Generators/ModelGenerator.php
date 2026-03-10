@@ -1,6 +1,7 @@
 <?php
 
 namespace Fida\Crud\Generators;
+use Illuminate\Support\Facades\File;
 
 class ModelGenerator
 {
@@ -8,11 +9,10 @@ class ModelGenerator
     {
 
         $modelPath = app_path("Models/{$name}.php");
-
-       
-        if (file_exists($modelPath)) {
+        if (File::exists($modelPath)) {
             return "{$name} model already exists!";
         }
+       
 
         $content = "<?php
 

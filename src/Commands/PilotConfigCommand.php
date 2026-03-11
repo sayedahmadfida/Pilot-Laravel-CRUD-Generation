@@ -2,10 +2,16 @@
 
 namespace Fida\Crud\Commands;
 
-use Illuminate\Console\Command;
+use AppendIterator;
+use Fida\Crud\Generators\AppGenerator;
 use Fida\Crud\Generators\ConfigGenerator;
+use Fida\Crud\Generators\HeaderGenerator;
+use Fida\Crud\Generators\HeadGenerator;
 use Fida\Crud\Generators\LayoutAppGenerator;
 use Fida\Crud\Generators\LayoutCssGenerator;
+use Fida\Crud\Generators\ScriptGenerator;
+use Fida\Crud\Generators\SidebarGenerator;
+use Illuminate\Console\Command;
 
 class PilotConfigCommand extends Command
 {
@@ -18,8 +24,12 @@ class PilotConfigCommand extends Command
         $this->info('Pilot configuration started...');
 
         (new ConfigGenerator())->generate();
-        (new LayoutAppGenerator())->generate();
         (new LayoutCssGenerator())->generate();
+        (new AppGenerator())->generate();
+        (new SidebarGenerator())->generate();
+        (new HeadGenerator())->generate();
+        (new HeaderGenerator())->generate();
+        (new ScriptGenerator())->generate();
 
         $this->info('Pilot setup completed.');
     }

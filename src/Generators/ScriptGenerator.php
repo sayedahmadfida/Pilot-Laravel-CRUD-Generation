@@ -10,11 +10,11 @@ class ScriptGenerator
     {
 
 
-        $layoutPath = resource_path("views/layouts/partials/footer.blade.php");
+        $layoutPath = resource_path("views/layouts/partials/script.blade.php");
 
         // Check if file already exists
         if (File::exists($layoutPath)) {
-            return "Footer layout already exists!";
+            return "Script layout already exists!";
         }
 
         // Ensure layouts directory exists
@@ -67,12 +67,17 @@ class ScriptGenerator
     integrity=\"sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ==\"
     crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>
   <!--end::OverlayScrollbars Configure-->
+
+  <script src=\"https://code.jquery.com/jquery-4.0.0.min.js\" integrity=\"sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=\" crossorigin=\"anonymous\"></script>
+
+  <script src=\"https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.min.js\"></script>
+
   <!--end::Script-->
 
     ";
 
         File::put($layoutPath, $content);
 
-        return "Footer layout created successfully!";
+        return "Script layout created successfully!";
     }
 }

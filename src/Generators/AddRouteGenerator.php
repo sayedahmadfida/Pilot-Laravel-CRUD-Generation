@@ -73,8 +73,8 @@ BLADE;
         $menuItem = <<<HTML
 
 <li class="nav-item">
-    <a href="{{ route('{$plural}.index') }}" class="nav-link">
-        <i class="nav-icon bi bi-circle"></i>
+    <a href="{{ route('{$plural}.index') }}" class="align-items-center d-flex nav-link">
+        <i class="fa-solid fa-caret-right"></i>
         <p>{$title}</p>
     </a>
 </li>

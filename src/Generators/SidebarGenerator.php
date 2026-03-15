@@ -47,12 +47,7 @@ class SidebarGenerator
              <ul class=\"nav sidebar-menu flex-column\" data-lte-toggle=\"treeview\" role=\"navigation\"
                  aria-label=\"Main navigation\" data-accordion=\"false\" id=\"navigation\">
 
-                 <li class=\"nav-item\">
-                     <a href=\"../generate/theme.html\" class=\"nav-link\">
-                         <i class=\"nav-icon bi bi-palette\"></i>
-                         <p>Theme Generate</p>
-                     </a>
-                 </li>
+                 
              </ul>
              <!--end::Sidebar Menu-->
          </nav>

@@ -72,6 +72,11 @@ class ScriptGenerator
 
   <script src=\"https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.min.js\"></script>
 
+  
+  <script src=\"https://cdn.jsdelivr.net/npm/sweetalert2@11\"></script>
+  
+  <script src=\"{{asset('assets/js/general.js')}}\"></script>
+
   <!--end::Script-->
 
     ";

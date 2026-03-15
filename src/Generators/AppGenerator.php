@@ -30,6 +30,7 @@ class AppGenerator
   <meta charset=\"utf-8\" />
   <title>AdminLTE</title>
 
+    <meta name=\"csrf-token\" content=\"{{ csrf_token() }}\">
   @include('layouts.partials.head')
 </head>
 

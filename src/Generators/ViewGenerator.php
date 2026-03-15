@@ -9,40 +9,150 @@ class ViewGenerator
 {
     public function generate($name)
     {
-        $folder = resource_path('views/' . Str::lower($name));
+        $nameLower = Str::lower($name);
+        $plural = Str::plural($nameLower);
+        $title = Str::plural($name);
 
-        // Ensure directory exists
+        $title = Str::title($nameLower);
+
+        $folder = resource_path("views/pages/{$nameLower}");
+
         File::ensureDirectoryExists($folder);
 
-        $nameLower = Str::lower($name);
+        /*
+        |--------------------------------------------------------------------------
+        | INDEX
+        |--------------------------------------------------------------------------
+        */
 
-        // Index view
-        $indexContent = <<<HTML
+        $indexContent = <<<BLADE
 @extends('layouts.app')
 
 @section('content')
 
-<h1>Create {$name}</h1>
-<!-- Include JS -->
+<div class="row">
+    <div class="col-xl-12 col-lg-12 col-sm-12 layout-top-spacing layout-spacing">
+
+        @include('pages.{$nameLower}.create')
+        @include('pages.{$nameLower}.edit')
+
+        <div class="card mt-2">
+            <div class="card-header">
+                <div class="d-flex inv-list-top-section justify-content-between">
+                    <h5>{$plural}</h5>
+                    <div class="dt-buttons">
+                        <button
+                            class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#create-{$nameLower}-modal">
+                            <span>Add New</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive mt-2 px-2">
+                    @include('pages.{$nameLower}.table')
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
 @section('scripts')
 <script src="{{ asset('assets/js/{$nameLower}.js') }}"></script>
 @endsection
-HTML;
+BLADE;
 
         File::put($folder.'/index.blade.php', $indexContent);
 
-        // Create view
 
-        File::put($folder.'/create.blade.php', 
-        
-'
-<form action="#" method="POST" id="create-'.strtolower($name).'-form">
-    @csrf
-    <h1>Create '.$name.'</h1>
-</form>
-'   
+        /*
+        |--------------------------------------------------------------------------
+        | TABLE
+        |--------------------------------------------------------------------------
+        */
 
-        );
+        $tableContent = <<<BLADE
+<table id="{$nameLower}-table" class="table table-bordered" style="width:100%">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Created At</th>
+            <th style="width:130px">Action</th>
+        </tr>
+    </thead>
+    <tbody id="{$nameLower}-table-body">
+        @foreach (\${$plural} as \${$nameLower})
+        <tr>
+            <td>{{ \$loop->iteration }}</td>
+            <td>{{ \${$nameLower}->created_at_formatted }}</td>
+            <td>
+                <div class="d-flex justify-content-evenly">
+                    <a href="javascript:void(0)"
+                       data-id="{{ \${$nameLower}->encrypted_id }}"
+                       class="delete-{$nameLower}">
+                       <i class="fa-solid fa-trash text-danger"></i>
+                    </a>
+                    <a href="javascript:void(0)"
+                       data-id="{{ \${$nameLower}->encrypted_id }}"
+                       class="edit-{$nameLower}">
+                       <i class="fa-solid fa-pen-to-square text-success"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+<div class="pagenate">
+    {{ \${$plural}->links('pagination::bootstrap-5') }}
+</div>
+BLADE;
+
+        File::put($folder.'/table.blade.php', $tableContent);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | EDIT MODAL
+        |--------------------------------------------------------------------------
+        */
+
+        $editContent = <<<BLADE
+<div class="modal fade" data-bs-backdrop="static" id="edit-{$nameLower}-modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit {$title}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="edit-{$nameLower}-form" method="POST" novalidate>
+                @csrf
+                <input type="hidden" id="edit-{$nameLower}-id" name="{$nameLower}_id">
+                <div class="modal-body">
+                    // Write your form fields here
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-sm btn-primary" id="edit-save-{$nameLower}">
+                        Save
+                    </button>
+                    <button class="btn btn-primary btn-sm d-none" type="button" disabled id="edit-loader">
+                        <span class="spinner-border spinner-border-sm"></span>
+                        Loading...
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+BLADE;
+
+        File::put($folder.'/edit.blade.php', $editContent);
     }
 }

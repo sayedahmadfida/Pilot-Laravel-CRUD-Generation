@@ -10,79 +10,172 @@ class ControllerGenerator
     {
         $controllerPath = app_path("Http/Controllers/{$name}Controller.php");
 
-        // Ensure directory exists
-        if (!file_exists(dirname($controllerPath))) {
+        if (!is_dir(dirname($controllerPath))) {
             mkdir(dirname($controllerPath), 0755, true);
         }
 
-        // Convert name to lowercase for view folder
+        $model = Str::studly($name);
+        $modelLower = Str::camel($name);
+        $plural = Str::plural($modelLower);
+        $pluralMethod = Str::studly($plural);
         $viewFolder = Str::lower($name);
 
-        $content = "<?php
+        $content = <<<PHP
+<?php
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\\{$model}Request;
+use App\Models\\{$model};
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
-class {$name}Controller extends Controller
+class {$model}Controller extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('{$viewFolder}.index');
-    }
+        \${$plural} = self::get{$pluralMethod}();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('{$viewFolder}.create');
+        return view('pages.{$viewFolder}.index', compact('{$plural}'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request \$request)
+    public function store({$model}Request \$request)
     {
-        // Add store logic here
-    }
+        try {
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(\$id)
-    {
-        //
+            DB::beginTransaction();
+
+            {$model}::create(\$request->validated());
+
+            DB::commit();
+
+            return response()->json([
+                'message' => '{$model} created successfully.',
+                '{$plural}' => self::get{$pluralMethod}()
+            ], 201);
+
+        } catch (\\Exception \$e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to create {$modelLower}.',
+                'error' => \$e->getMessage()
+            ], 500);
+
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(\$id)
+    public function edit(\${$modelLower}Id)
     {
-        return view('{$viewFolder}.edit');
+        try {
+
+            \${$modelLower} = {$model}::findOrFail(Crypt::decrypt(\${$modelLower}Id));
+
+            return response()->json([
+                '{$modelLower}' => \${$modelLower}
+            ], 200);
+
+        } catch (\\Exception \$e) {
+
+            return response()->json([
+                'message' => 'Failed to retrieve {$modelLower}.',
+                'error' => \$e->getMessage()
+            ], 500);
+
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request \$request, \$id)
+    public function update({$model}Request \$request, \${$modelLower}Id)
     {
-        // Add update logic here
+        try {
+
+            DB::beginTransaction();
+
+            \${$modelLower} = {$model}::findOrFail(Crypt::decrypt(\${$modelLower}Id));
+
+            \${$modelLower}->update(\$request->validated());
+
+            DB::commit();
+
+            return response()->json([
+                'message' => '{$model} updated successfully.',
+                '{$plural}' => self::get{$pluralMethod}()
+            ], 200);
+
+        } catch (\\Exception \$e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to update {$modelLower}.',
+                'error' => \$e->getMessage()
+            ], 500);
+
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(\$id)
+    public function destroy(\${$modelLower}Id)
     {
-        // Add delete logic here
+        try {
+
+            DB::beginTransaction();
+
+            \${$modelLower} = {$model}::findOrFail(Crypt::decrypt(\${$modelLower}Id));
+
+            \${$modelLower}->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => '{$model} deleted successfully.',
+                '{$plural}' => self::get{$pluralMethod}()
+            ], 200);
+
+        } catch (\\Exception \$e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Failed to delete {$modelLower}.',
+                'error' => \$e->getMessage()
+            ], 500);
+
+        }
     }
-}";
+
+    public static function get{$pluralMethod}()
+    {
+        return {$model}::orderBy('id', 'desc')
+            ->paginate(10)
+            ->through(function (\${$modelLower}) {
+
+                \${$modelLower}->encrypted_id = Crypt::encrypt(\${$modelLower}->id);
+                \${$modelLower}->created_at_formatted = \${$modelLower}->created_at->format('Y-m-d H:i:s');
+
+                \${$modelLower}->id = null;
+
+                return \${$modelLower};
+
+            });
+    }
+}
+PHP;
 
         file_put_contents($controllerPath, $content);
     }

@@ -9,6 +9,7 @@ class AddRouteGenerator
 {
     public function generate($name)
     {
+        
         $nameLower = Str::lower($name);
         $plural = Str::plural($nameLower);
         $title = Str::title($plural);

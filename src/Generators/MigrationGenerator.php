@@ -2,15 +2,19 @@
 
 namespace Fida\Crud\Generators;
 
+use Illuminate\Support\Str;
+
 class MigrationGenerator
 {
     public function generate($name)
     {
-        $table = strtolower($name) . 's';
+        
+        $nameLower = Str::lower($name);
+        $plural = Str::plural($nameLower);
 
         $timestamp = date('Y_m_d_His');
 
-        $migrationName = "{$timestamp}_create_{$table}_table.php";
+        $migrationName = "{$timestamp}_create_{$plural}_table.php";
 
         $migrationPath = database_path("migrations/{$migrationName}");
 
@@ -28,7 +32,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('{$table}', function (Blueprint \$table) {
+        Schema::create('{$plural}', function (Blueprint \$table) {
             \$table->id();
             
             \$table->timestamps();
@@ -37,7 +41,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('{$table}');
+        Schema::dropIfExists('{$plural}');
     }
 };
 ";

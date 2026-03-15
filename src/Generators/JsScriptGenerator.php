@@ -2,13 +2,15 @@
 
 namespace Fida\Crud\Generators;
 
+use Illuminate\Support\Str;
+
 class JsScriptGenerator
 {
     public function generate($name)
     {
         $model = ucfirst($name);
-        $modelLower = strtolower($name);
-        $plural = $modelLower . 's';
+        $modelLower = Str::lower($name);
+        $plural = Str::plural($modelLower);
 
         $jsPath = public_path("assets/js/{$modelLower}.js");
 

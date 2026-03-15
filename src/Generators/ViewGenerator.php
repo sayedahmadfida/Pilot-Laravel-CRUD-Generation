@@ -11,7 +11,7 @@ class ViewGenerator
     {
         $nameLower = Str::lower($name);
         $plural = Str::plural($nameLower);
-        $title = Str::plural($name);
+        $pageTitle = Str::title($plural);
 
         $title = Str::title($nameLower);
 
@@ -39,7 +39,7 @@ class ViewGenerator
         <div class="card mt-2">
             <div class="card-header">
                 <div class="d-flex inv-list-top-section justify-content-between">
-                    <h5>{$plural}</h5>
+                    <h5>{$pageTitle}</h5>
                     <div class="dt-buttons">
                         <button
                             class="btn btn-primary btn-sm"

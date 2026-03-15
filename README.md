@@ -110,8 +110,8 @@ The `pilot:crud` command will automatically generate:
 1. Create a new Laravel project:
 
 ```bash
-laravel new projectName
-cd projectName
+laravel new my-project
+cd my-project
 ```
 
 2. Install the CRUD generator package:

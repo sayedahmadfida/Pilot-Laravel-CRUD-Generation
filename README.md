@@ -26,7 +26,7 @@ cd my-project
 Install the package via Composer:
 
 ```bash
-composer require fida/laravel-crud-generate
+composer require fida/laravel-crud-generator
 ```
 
 ---

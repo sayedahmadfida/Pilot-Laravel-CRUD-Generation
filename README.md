@@ -16,12 +16,11 @@ This package installs via Composer and provides two Artisan commands that automa
 First create a new Laravel project:
 
 ```bash
-laravel new projectName
+laravel new my-project
 
 Move into the project directory:
 
-```bash
-cd projectName
+cd my-project
 ```
 
 Install the package via Composer:

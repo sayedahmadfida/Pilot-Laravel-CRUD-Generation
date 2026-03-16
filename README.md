@@ -193,7 +193,7 @@ public function rules(): array
 To support editing functionality, update:
 
 ```
-resources/views/pages/edit.blade.php
+resources/views/pages/product/edit.blade.php
 ```
 
 Add inputs and validation rules according to your requirements.

@@ -17,9 +17,9 @@ First create a new Laravel project:
 
 ```bash
 laravel new my-project
-
+```
 Move into the project directory:
-
+```
 cd my-project
 ```
 
@@ -81,8 +81,7 @@ app/Http/Controllers/ProductController.php
 app/Http/Requests/ProductRequest.php
 app/Models/Product.php
 
-database/migrations/
-2026_03_15_183116_create_products_table.php
+database/migrations/2026_03_15_183116_create_products_table.php
 
 public/assets/js/product.js
 

@@ -1,61 +1,121 @@
-# Laravel CRUD Generator
+# Laravel CRUD Generator (Pilot)
 
-Laravel CRUD Generator is a simple package that helps you quickly generate a complete CRUD system in your Laravel project with AdminLTE v4 UI.
+![Laravel](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-red)
+![PHP](https://img.shields.io/badge/PHP-8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Composer](https://img.shields.io/badge/Composer-Package-orange)
 
-The package automatically creates all necessary backend and frontend files including controllers, models, migrations, requests, views, JavaScript, and routes.
+Laravel CRUD Generator (Pilot) is a simple Laravel package that helps developers quickly configure an admin panel and generate a ready-to-use CRUD system.
+
+This package installs via Composer and provides two Artisan commands that automatically configure an admin layout and generate a full CRUD module with AJAX functionality.
 
 ---
 
-## Create New Laravel Project
+# Installation
 
-If you are starting a new project, run:
+First create a new Laravel project:
 
 ```bash
-laravel new my-project
-cd my-project
+laravel new projectName
+
+Move into the project directory:
+
+```bash
+cd projectName
+```
+
+Install the package via Composer:
+
+```bash
+composer require fida/laravel-crud-generate
 ```
 
 ---
 
-## Installation
+# Available Commands
 
-Install the package using Composer:
+After installing the package, two Artisan commands will be available:
 
-```bash
-composer require fida/laravel-crud-generator
+```
+php artisan pilot:config
+php artisan pilot:crud
 ```
 
 ---
 
-## Setup Admin Template
+# AdminLTE Configuration
 
-After installing the package, run the following command:
+Run the following command:
 
 ```bash
 php artisan pilot:config
 ```
 
-This command will install and configure the **AdminLTE v4** template inside your Laravel project.
+This command configures **AdminLTE v4** inside the Laravel project and creates the following files:
+
+```
+resources/views/layouts/app.blade.php
+resources/views/layouts/partials/head.blade.php
+resources/views/layouts/partials/header.blade.php
+resources/views/layouts/partials/sidebar.blade.php
+resources/views/layouts/partials/script.blade.php
+resources/views/layouts/partials/footer.blade.php
+public/assets/js/general.js
+```
+
+After these files are created, **AdminLTE v4 will be fully configured and ready to use**.
 
 ---
 
-## Generate CRUD
+# CRUD Generator
 
-To generate a complete CRUD module, run:
+Run the CRUD generation command:
 
 ```bash
-php artisan pilot:crud ModelName
+php artisan pilot:crud
 ```
 
-### Example
+This command generates the following files:
 
-```bash
-php artisan pilot:crud Product
+```
+app/Http/Controllers/ProductController.php
+app/Http/Requests/ProductRequest.php
+app/Models/Product.php
+
+database/migrations/
+2026_03_15_183116_create_products_table.php
+
+public/assets/js/product.js
+
+resources/views/pages/index.blade.php
+resources/views/pages/create.blade.php
+resources/views/pages/edit.blade.php
+resources/views/pages/table.blade.php
+```
+
+It will also automatically create a **products route** inside the `web.php` file.
+
+Example:
+
+```php
+Route::resource('products', ProductController::class);
 ```
 
 ---
 
-## Run The Project
+# Database Migration
+
+Run the migration command:
+
+```bash
+php artisan migrate
+```
+
+This will create the products table in your database.
+
+---
+
+# Run Laravel Server
 
 Start the Laravel development server:
 
@@ -63,98 +123,89 @@ Start the Laravel development server:
 php artisan serve
 ```
 
-Then open your browser and navigate to:
+Now open your browser and go to:
 
 ```
-http://localhost:8000
+http://localhost:8000/products
+```
+
+Your **CRUD system is now fully functional**.
+
+---
+
+# Customizing the CRUD
+
+You can add more columns to your table.
+
+### Step 1 — Update Migration
+
+Add your required columns in the migration file.
+
+### Step 2 — Update Create Form
+
+Add inputs inside:
+
+```
+resources/views/pages/create.blade.php
+```
+
+Example validation:
+
+```javascript
+$('#create-product-form').validate({
+
+    rules: {
+        product: { required: true }
+    },
+
+    submitHandler: (form) => {
+
+    }
+
+});
+```
+
+### Step 3 — Backend Validation
+
+Add validation rules inside:
+
+```
+app/Http/Requests/ProductRequest.php
 ```
 
 ---
 
-## What This Command Generates
+# Editing Records
 
-The `pilot:crud` command will automatically generate:
+To support editing functionality, update:
 
-- Model
-- Migration
-- Controller
-- Form Request (Validation)
-- Views
-  - Index Page
-  - Create Form (Modal)
-  - Edit Form (Modal)
-  - Table View
-- JavaScript File
-  - Form validation
-  - AJAX requests
-  - Table rendering
-- Routes
-- Sidebar menu item
+```
+resources/views/pages/edit.blade.php
+```
+
+Add inputs and validation rules according to your requirements.
 
 ---
 
-## Features
+# AJAX Based CRUD
 
-- Full CRUD functionality
-- AJAX based forms
-- Dynamic table rendering
-- Validation using Laravel Form Requests
-- AdminLTE v4 UI integration
-- Automatic sidebar menu generation
-- Clean JavaScript structure
+The generated CRUD system works using **AJAX requests**, which provides:
+
+* Faster interaction
+* No page reload
+* Better user experience
 
 ---
 
-## Workflow
+# Template Flexibility
 
-1. Create a new Laravel project:
-
-```bash
-laravel new my-project
-cd my-project
-```
-
-2. Install the CRUD generator package:
-
-```bash
-composer require fida/laravel-crud-generator
-```
-
-3. Configure the admin template:
-
-```bash
-php artisan pilot:config
-```
-
-4. Generate CRUD module:
-
-```bash
-php artisan pilot:crud ModelName
-```
-
-5. Start the server and view your project:
-
-```bash
-php artisan serve
-```
-
-Open your browser at:
-
-```
-http://localhost:8000
-```
-
-Your CRUD module will now be ready to use.
+Although this package configures **AdminLTE v4**, you can replace it with **any other admin template** based on your project needs.
 
 ---
 
-## Requirements
+# License
 
-- PHP 8+
-- Laravel 10+
+This package is open-source and available under the **MIT License**.
 
----
-
-## License
-
-This package is open-source and available under the MIT License.
+```
+```

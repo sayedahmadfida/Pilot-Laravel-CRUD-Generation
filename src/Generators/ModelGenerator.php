@@ -10,7 +10,10 @@ class ModelGenerator
 
         $modelPath = app_path("Models/{$name}.php");
         if (File::exists($modelPath)) {
-            return "{$name} model already exists!";
+            return [
+                'status' => 'exists',
+                'message' => "{$name} model already exists at:\n".$modelPath,
+            ];
         }
        
 
@@ -30,6 +33,9 @@ class {$name} extends Model
 
         file_put_contents($modelPath, $content);
 
-        return "{$name} model created successfully!";
+        return [
+            'status' => 'created',
+            'message' => "{$name} model created at:\n".$modelPath,
+        ];
     }
 }

@@ -10,6 +10,12 @@ class ControllerGenerator
     {
         $controllerPath = app_path("Http/Controllers/{$name}Controller.php");
 
+        if($controllerPath && file_exists($controllerPath)) {
+            return [
+                'status' => 'exists',
+                'message' => "{$name}Controller already exists at:\n".$controllerPath,
+            ];
+        }
         if (!is_dir(dirname($controllerPath))) {
             mkdir(dirname($controllerPath), 0755, true);
         }
@@ -178,5 +184,9 @@ class {$model}Controller extends Controller
 PHP;
 
         file_put_contents($controllerPath, $content);
+        return [
+            'status' => 'created',
+            'message' => "{$name}Controller created at:\n".$controllerPath,
+        ];
     }
 }

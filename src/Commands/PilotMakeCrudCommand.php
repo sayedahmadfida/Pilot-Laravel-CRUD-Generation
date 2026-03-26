@@ -27,7 +27,7 @@ class PilotMakeCrudCommand extends Command
         
         $this->outputResult((new ModelGenerator())->generate($name));
         $this->outputResult((new ControllerGenerator())->generate($name));
-        // $this->outputResult((new ViewGenerator())->generate($name));
+        $this->outputResult((new ViewGenerator())->generate($name));
         // $this->outputResult((new CreateFormGenerator())->generate($name));
         // $this->outputResult((new MigrationGenerator())->generate($name));
         // $this->outputResult((new RequestGenerator())->generate($name));

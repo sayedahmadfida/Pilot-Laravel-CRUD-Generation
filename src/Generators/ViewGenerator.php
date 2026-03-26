@@ -17,6 +17,15 @@ class ViewGenerator
 
         $folder = resource_path("views/pages/{$nameLower}");
 
+        $viewPath = resource_path("views/pages/{$nameLower}/index.blade.php");
+
+        if($viewPath && file_exists($viewPath)) {
+            return [
+                'status' => 'exists',
+                'message' => "{$name} view already exists at:\n".$viewPath,
+            ];
+        }
+
         File::ensureDirectoryExists($folder);
 
         /*
@@ -154,5 +163,9 @@ BLADE;
 BLADE;
 
         File::put($folder.'/edit.blade.php', $editContent);
+        return [
+            'status' => 'created',
+            'message' => "{$name} view created at:\n".$viewPath,
+        ];
     }
 }

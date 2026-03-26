@@ -84,7 +84,10 @@ HTML;
 
         // Prevent duplicate menus
         if (Str::contains($sidebar, "route('{$plural}.index')")) {
-            return "Menu already exists in sidebar.";
+            return [
+                'status' => 'exists',
+                'message' => "Menu already exists in sidebar.",
+            ];
         }
 
         // Insert before closing ul
@@ -96,6 +99,9 @@ HTML;
 
         File::put($layoutPath, $sidebar);
 
-        return "{$title} menu added to sidebar.";
+        return [
+            'status' => 'created',
+            'message' => "{$title} menu added to sidebar.",
+        ];
     }
 }

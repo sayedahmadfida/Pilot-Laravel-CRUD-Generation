@@ -32,7 +32,7 @@ class PilotMakeCrudCommand extends Command
         $this->outputResult((new MigrationGenerator())->generate($name));
         $this->outputResult((new RequestGenerator())->generate($name));
         $this->outputResult((new JsScriptGenerator())->generate($name));
-        // $this->outputResult((new AddRouteGenerator())->generate($name));
+        $this->outputResult((new AddRouteGenerator())->generate($name));
         // Store all generators in an array
         // $generators = [
         //     new ModelGenerator(),

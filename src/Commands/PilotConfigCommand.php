@@ -25,15 +25,15 @@ class PilotConfigCommand extends Command
     {
         $this->info('Pilot configuration started...');
 
-        $this->info((new ConfigGenerator())->generate());
-        $this->info((new LayoutCssGenerator())->generate());
-        $this->info((new AppGenerator())->generate());
-        $this->info((new SidebarGenerator())->generate());
-        $this->info((new HeadGenerator())->generate());
-        $this->info((new HeaderGenerator())->generate());
-        $this->info((new ScriptGenerator())->generate());
-        $this->info((new GeneralJsGenerator())->generate());
-        $this->info((new FooterGenerator())->generate());
+        $this->line((new ConfigGenerator())->generate());
+        $this->line((new LayoutCssGenerator())->generate());
+        $this->line((new AppGenerator())->generate());
+        $this->line((new SidebarGenerator())->generate());
+        $this->line((new HeadGenerator())->generate());
+        $this->line((new HeaderGenerator())->generate());
+        $this->line((new ScriptGenerator())->generate());
+        $this->line((new GeneralJsGenerator())->generate());
+        $this->line((new FooterGenerator())->generate());
 
         $this->info('Pilot setup completed.');
     }

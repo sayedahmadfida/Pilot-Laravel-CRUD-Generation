@@ -20,11 +20,11 @@ class LayoutCssGenerator
 
             file_put_contents($file, $content);
 
-            echo "css.blade.php created.\n";
+            return "css.blade.php created at: " . $file;
 
         } else {
 
-            echo "css.blade.php already exists.\n";
+            return "css.blade.php already exists at: " . $file;
 
         }
     }

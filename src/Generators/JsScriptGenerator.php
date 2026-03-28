@@ -21,34 +21,31 @@ class JsScriptGenerator
             ];
         }
 
-        // Create directory if not exists
         if (!is_dir(dirname($jsPath))) {
             mkdir(dirname($jsPath), 0755, true);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | RENDER COLUMNS
+        | TABLE COLUMNS
         |--------------------------------------------------------------------------
         */
         $renderColumns = "";
 
         foreach ($columns as $col) {
 
-            if ($col['name'] === 'id') {
+            if (in_array($col['name'], ['id', 'created_at', 'updated_at'])) {
                 continue;
             }
 
-            if ($col['name'] === 'created_at') {
-                continue; // handled separately
-            }
+            $field = $col['name'];
 
-            $renderColumns .= "<td>\${{$modelLower}.{$col['name']} ?? ''}</td>";
+            $renderColumns .= "<td>\${{$modelLower}.{$field} ?? ''}</td>";
         }
 
         /*
         |--------------------------------------------------------------------------
-        | EDIT FIELDS (DYNAMIC)
+        | EDIT FIELDS
         |--------------------------------------------------------------------------
         */
         $editFields = "";
@@ -61,42 +58,46 @@ class JsScriptGenerator
 
             $field = $col['name'];
 
-            // Checkbox (boolean)
             if (Str::contains($col['type'], ['boolean'])) {
 
                 $editFields .= "
-                    if(res.{$modelLower}.{$field}) {
-                        $('#edit-{$field}').prop('checked', true);
-                    } else {
-                        $('#edit-{$field}').prop('checked', false);
-                    }
+                $('#edit-{$field}').prop('checked', data.{$field} ? true : false);
                 ";
 
             } else {
 
                 $editFields .= "
-                    $('#edit-{$field}').val(res.{$modelLower}.{$field} ?? '');
+                $('#edit-{$field}').val(data.{$field} ?? '');
                 ";
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | FILE CONTENT
+        | FINAL SCRIPT
         |--------------------------------------------------------------------------
         */
         $content = "
 const {$model} = {
 
     init() {
+        this.events();
         this.create();
         this.update();
-        this.events();
     },
 
+    /*
+    |--------------------------------------------------------------------------
+    | EVENTS (SAFE BINDING)
+    |--------------------------------------------------------------------------
+    */
     events() {
-        $(document).on('click', '.delete-{$modelLower}', (e) => this.delete(e));
-        $(document).on('click', '.edit-{$modelLower}', (e) => this.edit(e));
+
+        $(document).off('click', '.delete-{$modelLower}')
+                   .on('click', '.delete-{$modelLower}', (e) => this.delete(e));
+
+        $(document).off('click', '.edit-{$modelLower}')
+                   .on('click', '.edit-{$modelLower}', (e) => this.edit(e));
     },
 
     /*
@@ -106,11 +107,9 @@ const {$model} = {
     */
     create() {
 
-        $('#create-{$modelLower}-form').validate({
+        if (!$('#create-{$modelLower}-form').length) return;
 
-            rules: {
-                {$modelLower}: { required: true }
-            },
+        $('#create-{$modelLower}-form').validate({
 
             submitHandler: (form) => {
 
@@ -121,12 +120,12 @@ const {$model} = {
                     loader: '#loader',
                     button: '#save-{$modelLower}'
                 })
-
                 .then(res => {
 
                     UI.toast(res.message);
 
-                    $('#create-{$modelLower}-modal').modal('hide');
+                    const modal = document.getElementById('create-{$modelLower}-modal');
+                    if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
                     $(form).validate().resetForm();
@@ -148,11 +147,9 @@ const {$model} = {
     */
     update() {
 
-        $('#edit-{$modelLower}-form').validate({
+        if (!$('#edit-{$modelLower}-form').length) return;
 
-            rules: {
-                {$modelLower}: { required: true }
-            },
+        $('#edit-{$modelLower}-form').validate({
 
             submitHandler: (form) => {
 
@@ -165,12 +162,12 @@ const {$model} = {
                     loader: '#edit-loader',
                     button: '#edit-save-{$modelLower}'
                 })
-
                 .then(res => {
 
                     UI.toast(res.message);
 
-                    $('#edit-{$modelLower}-modal').modal('hide');
+                    const modal = document.getElementById('edit-{$modelLower}-modal');
+                    if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
                     $(form).validate().resetForm();
@@ -204,7 +201,6 @@ const {$model} = {
                 url: '/{$plural}/' + id,
                 method: 'DELETE'
             })
-
             .then(res => {
 
                 UI.toast(res.message);
@@ -219,7 +215,7 @@ const {$model} = {
 
     /*
     |--------------------------------------------------------------------------
-    | EDIT (DYNAMIC)
+    | EDIT (SAFE + DYNAMIC)
     |--------------------------------------------------------------------------
     */
     edit(event) {
@@ -232,18 +228,25 @@ const {$model} = {
             url: '/{$plural}/' + id + '/edit',
             method: 'GET'
         })
-
         .then(res => {
 
-            // Reset form first
-            $('#edit-{$modelLower}-form')[0].reset();
+            const data = res.{$modelLower} || {};
+
+            const form = $('#edit-{$modelLower}-form')[0];
+            if (form) form.reset();
 
             {$editFields}
 
             $('#edit-{$modelLower}-id').val(id);
 
-            $('#edit-{$modelLower}-modal').modal('show');
+            const modalEl = document.getElementById('edit-{$modelLower}-modal');
+            if (modalEl) {
+                new bootstrap.Modal(modalEl).show();
+            }
 
+        })
+        .catch(() => {
+            UI.toast('Failed to load data');
         });
 
     },
@@ -255,17 +258,19 @@ const {$model} = {
     */
     render({$plural}) {
 
+        if (!{$plural} || !{$plural}.data) return;
+
         const tbody = $('#{$modelLower}-table-body');
 
         tbody.empty();
 
-        let startIndex = {$plural}.from || 0;
+        let startIndex = {$plural}.from ? {$plural}.from - 1 : 0;
 
         {$plural}.data.forEach(({$modelLower}, index) => {
 
-            tbody.append(\`
+            tbody.append(`
                 <tr>
-                    <td>\${startIndex + index}</td>
+                    <td>\${startIndex + index + 1}</td>
                     {$renderColumns}
                     <td>\${{$modelLower}.created_at_formatted ?? ''}</td>
                     <td>
@@ -286,13 +291,20 @@ const {$model} = {
                         </div>
                     </td>
                 </tr>
-            \`);
+            `);
 
         });
 
     }
 
 };
+
+// CSRF setup (Laravel)
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name=\"csrf-token\"]').attr('content')
+    }
+});
 
 $(document).ready(function () {
     {$model}.init();

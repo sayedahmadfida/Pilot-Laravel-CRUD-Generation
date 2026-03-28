@@ -157,7 +157,79 @@ BLADE;
         |--------------------------------------------------------------------------
         */
 
-        $editContent = <<<BLADE
+$formFields = "";
+
+foreach ($columns as $col) {
+
+    // Skip unwanted fields
+    if (in_array($col['name'], ['id', 'created_at', 'updated_at'])) {
+        continue;
+    }
+
+    $fieldName = $col['name'];
+    $label = Str::title(str_replace('_', ' ', $fieldName));
+
+    // Detect input type
+    $type = 'text';
+
+    if (Str::contains($col['type'], ['int', 'decimal', 'float'])) {
+        $type = 'number';
+    } elseif (Str::contains($col['type'], ['date'])) {
+        $type = 'date';
+    } elseif (Str::contains($col['type'], ['text'])) {
+        $type = 'textarea';
+    } elseif (Str::contains($col['type'], ['boolean'])) {
+        $type = 'checkbox';
+    }
+
+    // Generate field HTML
+    if ($type === 'textarea') {
+
+        $formFields .= <<<HTML
+<div class="mb-3">
+    <label class="form-label">{$label}</label>
+    <textarea 
+        class="form-control" 
+        name="{$fieldName}" 
+        id="edit-{$fieldName}"></textarea>
+</div>
+
+HTML;
+
+    } elseif ($type === 'checkbox') {
+
+        $formFields .= <<<HTML
+<div class="form-check mb-3">
+    <input 
+        class="form-check-input" 
+        type="checkbox" 
+        name="{$fieldName}" 
+        id="edit-{$fieldName}">
+    <label class="form-check-label">
+        {$label}
+    </label>
+</div>
+
+HTML;
+
+    } else {
+
+        $formFields .= <<<HTML
+<div class="mb-3">
+    <label class="form-label">{$label}</label>
+    <input 
+        type="{$type}" 
+        class="form-control" 
+        name="{$fieldName}" 
+        id="edit-{$fieldName}">
+</div>
+
+HTML;
+
+    }
+}
+
+$editContent = <<<BLADE
 <div class="modal fade" data-bs-backdrop="static" id="edit-{$nameLower}-modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -168,9 +240,11 @@ BLADE;
             <form id="edit-{$nameLower}-form" method="POST" novalidate>
                 @csrf
                 <input type="hidden" id="edit-{$nameLower}-id" name="{$nameLower}_id">
+
                 <div class="modal-body">
-                    // Write your form fields here
+                    $formFields
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
                         Close

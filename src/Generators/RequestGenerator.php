@@ -6,7 +6,18 @@ use Illuminate\Support\Str;
 
 class RequestGenerator
 {
-    public function generate($name)
+    /**
+     * Generate a Form Request with validation rules
+     *
+     * @param string $name Model name
+     * @param array $columns Columns with validation rules. Format:
+        * [
+        *  ['name' => 'name', 'rules' => 'required|string'],
+        *  ['name' => 'price', 'rules' => 'required|numeric|min:0']
+        * ]
+     * @return array Status and message
+     */
+    public function generate(string $name, array $columns = []): array
     {
         $model = Str::studly($name);
         $modelLower = Str::lower($name);
@@ -15,9 +26,9 @@ class RequestGenerator
 
         // Prevent overwrite
         if (file_exists($requestPath)) {
-            return[
+            return [
                 'status' => 'exists',
-                'message' => "{$model}Request already exists at:\n".$requestPath,
+                'message' => "{$model}Request already exists at:\n" . $requestPath,
             ];
         }
 
@@ -25,6 +36,15 @@ class RequestGenerator
         if (!is_dir(dirname($requestPath))) {
             mkdir(dirname($requestPath), 0755, true);
         }
+
+        // Build validation rules
+        $rulesArray = [];
+        foreach ($columns as $col) {
+            // Fallback to empty string if no rules provided
+            $rules = $col['rules'] ?? '';
+            $rulesArray[] = "            '{$col['name']}' => '{$rules}'";
+        }
+        $rulesCode = implode(",\n", $rulesArray);
 
         $content = <<<PHP
 <?php
@@ -52,16 +72,17 @@ class {$model}Request extends FormRequest
     public function rules(): array
     {
         return [
-            // Define your validation rules here
+{$rulesCode}
         ];
     }
 }
 PHP;
 
         file_put_contents($requestPath, $content);
+
         return [
             'status' => 'created',
-            'message' => "{$model}Request created at:\n".$requestPath,
+            'message' => "{$model}Request created at:\n" . $requestPath,
         ];
     }
 }

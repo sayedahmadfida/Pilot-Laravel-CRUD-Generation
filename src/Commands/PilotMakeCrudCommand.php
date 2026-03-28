@@ -5,7 +5,6 @@ namespace Fida\Crud\Commands;
 use Fida\Crud\Generators\AddRouteGenerator;
 use Fida\Crud\Generators\ControllerGenerator;
 use Fida\Crud\Generators\CreateFormGenerator;
-use Fida\Crud\Generators\JsGenerator;
 use Fida\Crud\Generators\JsScriptGenerator;
 use Fida\Crud\Generators\MigrationGenerator;
 use Fida\Crud\Generators\ModelGenerator;
@@ -16,56 +15,62 @@ use Illuminate\Console\Command;
 
 class PilotMakeCrudCommand extends Command
 {
-    protected $signature = 'pilot:crud {name}';
-    
-    protected $description = 'Create full CRUD module for a given model name';
+    //protected $signature = 'pilot:crud {name}';
+
+
+    protected $signature = 'pilot:crud 
+                            {name : The name of the model} 
+                            {--columns= : Comma-separated column definitions like name:string,price:decimal}';
+
+    protected $description = 'Generate CRUD for a model including migration, controller, views, etc.';
+
 
     public function handle()
     {
+
         $name = $this->argument('name');
+        $columnsOption = $this->option('columns');
 
-        
-        $this->outputResult((new ModelGenerator())->generate($name));
+        $pairs = explode(',', $columnsOption);
+
+        $columns = [];
+
+        foreach ($pairs as $pair) {
+            $parts = explode(':', $pair);
+
+            $colName = $parts[0] ?? null;
+            $colType = $parts[1] ?? 'string';
+
+            $colRules = count($parts) > 2  ? implode(':', array_slice($parts, 2)) : '';
+
+            $columns[] = [
+                'name' => $colName,
+                'type' => $colType,
+                'rules' => $colRules,
+            ];
+        }
+
+
+
+        $this->outputResult((new ModelGenerator())->generate($name, $columns));
         $this->outputResult((new ControllerGenerator())->generate($name));
-        $this->outputResult((new ViewGenerator())->generate($name));
-        $this->outputResult((new CreateFormGenerator())->generate($name));
-        $this->outputResult((new MigrationGenerator())->generate($name));
-        $this->outputResult((new RequestGenerator())->generate($name));
-        $this->outputResult((new JsScriptGenerator())->generate($name));
+        $this->outputResult((new ViewGenerator())->generate($name, $columns));
+        $this->outputResult((new CreateFormGenerator())->generate($name, $columns));
+        $this->outputResult((new MigrationGenerator())->generate($name, $columns));
+        $this->outputResult((new RequestGenerator())->generate($name, $columns));
+        $this->outputResult((new JsScriptGenerator())->generate($name, $columns));
         $this->outputResult((new AddRouteGenerator())->generate($name));
-        // Store all generators in an array
-        // $generators = [
-        //     new ModelGenerator(),
-        //     new ControllerGenerator(),
-        //     new ViewGenerator(),
-        //     new (),
-        //     new (),
-        //     new (),
-        //     new (),
-        //     new (),
-        //     new (),
-        // ];
+        $this->outputResult((new RouteGenerator())->generate($name));
 
-        // // Check each generator first
-        // foreach ($generators as $generator) {
-        //     $result = $generator->generate($name);
-
-        //     if (strpos($result, 'already exists') !== false) {
-        //         $this->error($result); 
-        //         return;
-        //     }
-        // }
-
-        // If none existed, show success
         $this->info('CRUD generated successfully.');
     }
 
     protected function outputResult($result)
     {
         if ($result['status'] === 'exists') {
-            $this->info($result['message']); 
+            $this->info($result['message']);
         } else {
-            $this->line($result['message']); 
+            $this->line($result['message']);
         }
     }
 }

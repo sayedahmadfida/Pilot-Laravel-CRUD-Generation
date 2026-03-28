@@ -74,7 +74,7 @@ BLADE;
         $menuItem = <<<HTML
 
 <li class="nav-item">
-    <a href="{{ route('{$plural}.index') }}" class="align-items-center d-flex nav-link">
+    <a href="{{ route('{$plural}.index') }}" class="align-items-center d-flex nav-link {{ request()->is('{$plural}*') ? 'active' : '' }}">
         <i class="fa-solid fa-caret-right"></i>
         <p>{$title}</p>
     </a>

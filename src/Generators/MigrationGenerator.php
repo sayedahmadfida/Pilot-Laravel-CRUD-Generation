@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class MigrationGenerator
 {
-    public function generate($name)
+    public function generate($name, $columns = [])
     {
         
         $nameLower = Str::lower($name);
@@ -19,17 +19,19 @@ class MigrationGenerator
 
         $migrationPath = database_path("migrations/{$migrationName}");
 
-
-        $existingFiles = File::files(database_path('migrations'));
-        foreach ($existingFiles as $file) {
-            if (Str::contains($file->getFilename(), "create_{$plural}_table.php")) {
-                return [
-                    'status' => 'exists',
-                    'message' => "Migration already exists:\n" . $file->getPathname(),
-                ];
-            }
+       
+        $existing = glob(database_path("migrations/*_create_{$plural}_table.php"));
+        if (!empty($existing)) {
+            return [
+                'status' => 'exists',
+                'message' => "Migration already exists for {$name} at " . $existing[0],
+            ];
         }
 
+        $columnsCode = "";
+        foreach ($columns as $col) {
+            $columnsCode .= "\$table->{$col['type']}('{$col['name']}');\n            ";
+        }
 
         $content = "<?php
 
@@ -43,7 +45,7 @@ return new class extends Migration
     {
         Schema::create('{$plural}', function (Blueprint \$table) {
             \$table->id();
-            
+            {$columnsCode}
             \$table->timestamps();
         });
     }

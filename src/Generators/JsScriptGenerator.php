@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 
 class JsScriptGenerator
 {
-    public function generate($name)
+    public function generate($name, $columns = [])
     {
         $model = ucfirst($name);
         $modelLower = Str::lower($name);
@@ -25,6 +25,25 @@ class JsScriptGenerator
         if (!is_dir(dirname($jsPath))) {
             mkdir(dirname($jsPath), 0755, true);
         }
+
+        $renderColumns = "";
+
+foreach ($columns as $col) {
+
+    // Skip ID (already using loop index)
+    if ($col['name'] === 'id') {
+        continue;
+    }
+
+    // Format created_at nicely
+    if ($col['name'] === 'created_at') {
+        $renderColumns .= "<td>\${{$modelLower}.created_at_formatted}</td>";
+    } else {
+        $renderColumns .= "<td>\${{$modelLower}.{$col['name']}}</td>";
+    }
+}
+
+
 
         $content = "
 const {$model} = {
@@ -169,41 +188,43 @@ const {$model} = {
 
     render({$plural}) {
 
-        const tbody = $('#{$modelLower}-table-body');
+    const tbody = $('#{$modelLower}-table-body');
 
-        tbody.empty();
+    tbody.empty();
 
-        let startIndex = {$plural}.from || 0;
+    let startIndex = {$plural}.from || 0;
 
-        {$plural}.data.forEach(({$modelLower}, index) => {
+    {$plural}.data.forEach(({$modelLower}, index) => {
 
-            tbody.append(`
-                <tr>
-                    <td>\${startIndex + index}</td>
-                    <td>\${{$modelLower}.created_at_formatted}</td>
-                    <td>
-                        <div class=\"d-flex justify-content-evenly\">
+        tbody.append(`
+            <tr>
+                <td>\${startIndex + index}</td>
+                {$renderColumns}
+                
+                <td>\${{$modelLower}.created_at_formatted}</td>
+                <td>
+                    <div class=\"d-flex justify-content-evenly\">
 
-                            <a href=\"#\"
-                               class=\"delete-{$modelLower}\"
-                               data-id=\"\${{$modelLower}.encrypted_id}\">
-                               <i class=\"fa-solid fa-trash text-danger\"></i>
-                            </a>
+                        <a href=\"#\"
+                           class=\"delete-{$modelLower}\"
+                           data-id=\"\${{$modelLower}.encrypted_id}\">
+                           <i class=\"fa-solid fa-trash text-danger\"></i>
+                        </a>
 
-                            <a href=\"#\"
-                               class=\"edit-{$modelLower}\"
-                               data-id=\"\${{$modelLower}.encrypted_id}\">
-                               <i class=\"fa-solid fa-pen-to-square text-success\"></i>
-                            </a>
+                        <a href=\"#\"
+                           class=\"edit-{$modelLower}\"
+                           data-id=\"\${{$modelLower}.encrypted_id}\">
+                           <i class=\"fa-solid fa-pen-to-square text-success\"></i>
+                        </a>
 
-                        </div>
-                    </td>
-                </tr>
-            `);
+                    </div>
+                </td>
+            </tr>
+        `);
 
-        });
+    });
 
-    }
+}
 
 };
 

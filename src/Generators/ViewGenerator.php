@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class ViewGenerator
 {
-    public function generate($name)
+    public function generate($name, $columns = [])
     {
         $nameLower = Str::lower($name);
         $plural = Str::plural($nameLower);
@@ -19,10 +19,10 @@ class ViewGenerator
 
         $viewPath = resource_path("views/pages/{$nameLower}/index.blade.php");
 
-        if($viewPath && file_exists($viewPath)) {
+        if ($viewPath && file_exists($viewPath)) {
             return [
                 'status' => 'exists',
-                'message' => "{$name} view already exists at:\n".$viewPath,
+                'message' => "{$name} view already exists at:\n" . $viewPath,
             ];
         }
 
@@ -75,7 +75,7 @@ class ViewGenerator
 @endsection
 BLADE;
 
-        File::put($folder.'/index.blade.php', $indexContent);
+        File::put($folder . '/index.blade.php', $indexContent);
 
 
         /*
@@ -84,20 +84,47 @@ BLADE;
         |--------------------------------------------------------------------------
         */
 
+
+        $thead = "";
+        $tbody = "";
+
+        // Always include ID
+        $thead .= "<th>ID</th>\n";
+
+        // Loop columns
+        foreach ($columns as $col) {
+
+            // Skip unwanted
+            if (in_array($col['name'], ['id', 'created_at', 'updated_at'])) {
+                continue;
+            }
+
+            $label = Str::title(str_replace('_', ' ', $col['name']));
+
+            $thead .= "<th>{$label}</th>\n";
+
+            $tbody .= "<td>{{ \${$nameLower}->{$col['name']} }}</td>\n";
+        }
+
+        // Add created_at manually if you want
+        $thead .= "<th>Created At</th>\n";
+        $tbody .= "<td>{{ \${$nameLower}->created_at }}</td>\n";
+
+        // Action column
+        $thead .= '<th style="width:130px">Action</th>';
+
         $tableContent = <<<BLADE
 <table id="{$nameLower}-table" class="table table-bordered" style="width:100%">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Created At</th>
-            <th style="width:130px">Action</th>
+             $thead 
         </tr>
     </thead>
     <tbody id="{$nameLower}-table-body">
-        @foreach (\${$plural} as \${$nameLower})
+         @foreach (\${$plural} as \${$nameLower})
         <tr>
             <td>{{ \$loop->iteration }}</td>
-            <td>{{ \${$nameLower}->created_at_formatted }}</td>
+            $tbody
             <td>
                 <div class="d-flex justify-content-evenly">
                     <a href="javascript:void(0)"
@@ -121,7 +148,7 @@ BLADE;
 </div>
 BLADE;
 
-        File::put($folder.'/table.blade.php', $tableContent);
+        File::put($folder . '/table.blade.php', $tableContent);
 
 
         /*
@@ -162,10 +189,10 @@ BLADE;
 </div>
 BLADE;
 
-        File::put($folder.'/edit.blade.php', $editContent);
+        File::put($folder . '/edit.blade.php', $editContent);
         return [
             'status' => 'created',
-            'message' => "{$name} view created at:\n".$viewPath,
+            'message' => "{$name} view created at:\n" . $viewPath,
         ];
     }
 }

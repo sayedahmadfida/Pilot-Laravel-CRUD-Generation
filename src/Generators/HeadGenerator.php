@@ -6,27 +6,27 @@ use Illuminate\Support\Facades\File;
 
 class HeadGenerator
 {
-    public function generate()
-    {
-        
+  public function generate()
+  {
 
-        $layoutPath = resource_path("views/layouts/partials/head.blade.php");
 
-        // Check if file already exists
-        if (File::exists($layoutPath)) {
-            return [
-              'status' =>'exists',
-              'message' => "Head layout already exists at: \n".$layoutPath,
-            ];
-        }
+    $layoutPath = resource_path("views/layouts/partials/head.blade.php");
 
-        // Ensure layouts directory exists
-        $layoutsDir = resource_path("views/layouts/partials");
-        if (!File::exists($layoutsDir)) {
-            File::makeDirectory($layoutsDir, 0755, true);
-        }
+    // Check if file already exists
+    if (File::exists($layoutPath)) {
+      return [
+        'status' => 'exists',
+        'message' => "Head layout already exists at: \n" . $layoutPath,
+      ];
+    }
 
-        $content = "
+    // Ensure layouts directory exists
+    $layoutsDir = resource_path("views/layouts/partials");
+    if (!File::exists($layoutsDir)) {
+      File::makeDirectory($layoutsDir, 0755, true);
+    }
+
+    $content = "
 
   <!--begin::Accessibility Features-->
   <!-- Skip links will be dynamically added by accessibility.js -->
@@ -53,15 +53,24 @@ class HeadGenerator
   <!--begin::Required Plugin(AdminLTE)-->
   <link rel=\"stylesheet\" href=\"https://adminlte.io/themes/v4/css/adminlte.css\" />
   <!--end::Required Plugin(AdminLTE)-->
+  
+    <style>
+      .error{
+        color: #a30000
+      }
+    </style>
+
   <!--end::Head-->
+  
   <!--begin::Body-->
+
 ";
 
-        File::put($layoutPath, $content);
+    File::put($layoutPath, $content);
 
-        return [
-            'status' => 'created',
-            'message' => "Head layout created at:\n".$layoutPath,
-        ];
-    }
+    return [
+      'status' => 'created',
+      'message' => "Head layout created at:\n" . $layoutPath,
+    ];
+  }
 }

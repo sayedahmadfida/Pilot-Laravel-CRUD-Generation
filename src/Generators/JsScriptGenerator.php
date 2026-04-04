@@ -8,11 +8,12 @@ class JsScriptGenerator
 {
     public function generate($name, $columns = [])
     {
-        $model = ucfirst($name);
-        $modelLower = Str::lower($name);
-        $plural = Str::plural($modelLower);
+        $model = Str::studly($name);      // ProductList (JS object)
+$kebab = Str::kebab($name);       // product-list (file + selectors)
+$camel = Str::camel($name);       // productList (JS variables)
+$plural = Str::plural($kebab);    // product-lists (API routes)
 
-        $jsPath = public_path("assets/js/{$modelLower}.js");
+        $jsPath = public_path("assets/js/{$kebab}.js");
 
         if (file_exists($jsPath)) {
             return [
@@ -40,7 +41,7 @@ class JsScriptGenerator
 
             $field = $col['name'];
 
-            $renderColumns .= "<td>\${{$modelLower}.{$field} ?? ''}</td>";
+            $renderColumns .= "<td>\${{$kebab}.{$field} ?? ''}</td>";
         }
 
         /*
@@ -93,11 +94,11 @@ const {$model} = {
     */
     events() {
 
-        $(document).off('click', '.delete-{$modelLower}')
-                   .on('click', '.delete-{$modelLower}', (e) => this.delete(e));
+        $(document).off('click', '.delete-{$kebab}')
+                   .on('click', '.delete-{$kebab}', (e) => this.delete(e));
 
-        $(document).off('click', '.edit-{$modelLower}')
-                   .on('click', '.edit-{$modelLower}', (e) => this.edit(e));
+        $(document).off('click', '.edit-{$kebab}')
+                   .on('click', '.edit-{$kebab}', (e) => this.edit(e));
     },
 
     /*
@@ -107,9 +108,9 @@ const {$model} = {
     */
     create() {
 
-        if (!$('#create-{$modelLower}-form').length) return;
+        if (!$('#create-{$kebab}-form').length) return;
 
-        $('#create-{$modelLower}-form').validate({
+        $('#create-{$kebab}-form').validate({
 
             submitHandler: (form) => {
 
@@ -118,13 +119,13 @@ const {$model} = {
                     method: 'POST',
                     data: $(form).serialize(),
                     loader: '#loader',
-                    button: '#save-{$modelLower}'
+                    button: '#save-{$kebab}'
                 })
                 .then(res => {
 
                     UI.toast(res.message);
 
-                    const modal = document.getElementById('create-{$modelLower}-modal');
+                    const modal = document.getElementById('create-{$kebab}-modal');
                     if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
@@ -147,26 +148,26 @@ const {$model} = {
     */
     update() {
 
-        if (!$('#edit-{$modelLower}-form').length) return;
+        if (!$('#edit-{$kebab}-form').length) return;
 
-        $('#edit-{$modelLower}-form').validate({
+        $('#edit-{$kebab}-form').validate({
 
             submitHandler: (form) => {
 
-                const id = $('#edit-{$modelLower}-id').val();
+                const id = $('#edit-{$kebab}-id').val();
 
                 AjaxHelper.request({
                     url: '/{$plural}/' + id,
                     method: 'PUT',
                     data: $(form).serialize(),
                     loader: '#edit-loader',
-                    button: '#edit-save-{$modelLower}'
+                    button: '#edit-save-{$kebab}'
                 })
                 .then(res => {
 
                     UI.toast(res.message);
 
-                    const modal = document.getElementById('edit-{$modelLower}-modal');
+                    const modal = document.getElementById('edit-{$kebab}-modal');
                     if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
@@ -230,16 +231,16 @@ const {$model} = {
         })
         .then(res => {
 
-            const data = res.{$modelLower} || {};
+            const data = res.{$kebab} || {};
 
-            const form = $('#edit-{$modelLower}-form')[0];
+            const form = $('#edit-{$kebab}-form')[0];
             if (form) form.reset();
 
             {$editFields}
 
-            $('#edit-{$modelLower}-id').val(id);
+            $('#edit-{$kebab}-id').val(id);
 
-            const modalEl = document.getElementById('edit-{$modelLower}-modal');
+            const modalEl = document.getElementById('edit-{$kebab}-modal');
             if (modalEl) {
                 new bootstrap.Modal(modalEl).show();
             }
@@ -260,31 +261,31 @@ const {$model} = {
 
         if (!{$plural} || !{$plural}.data) return;
 
-        const tbody = $('#{$modelLower}-table-body');
+        const tbody = $('#{$kebab}-table-body');
 
         tbody.empty();
 
         let startIndex = {$plural}.from ? {$plural}.from - 1 : 0;
 
-        {$plural}.data.forEach(({$modelLower}, index) => {
+        {$plural}.data.forEach(({$kebab}, index) => {
 
             tbody.append(`
                 <tr>
                     <td>\${startIndex + index + 1}</td>
                     {$renderColumns}
-                    <td>\${{$modelLower}.created_at_formatted ?? ''}</td>
+                    <td>\${{$kebab}.created_at_formatted ?? ''}</td>
                     <td>
                         <div class=\"d-flex justify-content-evenly\">
 
                             <a href=\"#\"
-                               class=\"delete-{$modelLower}\"
-                               data-id=\"\${{$modelLower}.encrypted_id}\">
+                               class=\"delete-{$kebab}\"
+                               data-id=\"\${{$kebab}.encrypted_id}\">
                                <i class=\"fa-solid fa-trash text-danger\"></i>
                             </a>
 
                             <a href=\"#\"
-                               class=\"edit-{$modelLower}\"
-                               data-id=\"\${{$modelLower}.encrypted_id}\">
+                               class=\"edit-{$kebab}\"
+                               data-id=\"\${{$kebab}.encrypted_id}\">
                                <i class=\"fa-solid fa-pen-to-square text-success\"></i>
                             </a>
 

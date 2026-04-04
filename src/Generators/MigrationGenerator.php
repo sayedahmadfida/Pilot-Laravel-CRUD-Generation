@@ -10,8 +10,8 @@ class MigrationGenerator
     public function generate($name, $columns = [])
     {
         
-        $nameLower = Str::lower($name);
-        $plural = Str::plural($nameLower);
+        $snake = Str::snake(trim($name));  
+        $plural = Str::plural($snake);
 
         $timestamp = date('Y_m_d_His');
 

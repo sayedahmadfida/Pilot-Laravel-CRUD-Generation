@@ -15,8 +15,10 @@ class RouteGenerator
      */
     public function generate(string $name): array
     {
-        $nameLower = Str::lower($name);
-        $plural = Str::plural($nameLower);
+        
+        $kebab = Str::kebab($name);
+        $plural = Str::plural($kebab);
+        
         $controller = Str::studly($plural) . 'Controller';
         $routeController = Str::studly($name) . 'Controller';
 

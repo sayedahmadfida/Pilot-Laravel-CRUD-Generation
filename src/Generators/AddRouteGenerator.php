@@ -13,6 +13,7 @@ class AddRouteGenerator
         $nameLower = Str::lower($name);
         $plural = Str::plural($nameLower);
         $title = Str::title($plural);
+        $kebab = Str::kebab($name);    
 
         $layoutPath = resource_path("views/layouts/partials/sidebar.blade.php");
 
@@ -74,7 +75,7 @@ BLADE;
         $menuItem = <<<HTML
 
 <li class="nav-item">
-    <a href="{{ route('{$plural}.index') }}" class="align-items-center d-flex nav-link {{ request()->is('{$plural}*') ? 'active' : '' }}">
+    <a href="{{ route('{$kebab}.index') }}" class="align-items-center d-flex nav-link {{ request()->is('{$plural}*') ? 'active' : '' }}">
         <i class="fa-solid fa-caret-right"></i>
         <p>{$title}</p>
     </a>
@@ -83,7 +84,7 @@ BLADE;
 HTML;
 
         // Prevent duplicate menus
-        if (Str::contains($sidebar, "route('{$plural}.index')")) {
+        if (Str::contains($sidebar, "route('{$kebab}.index')")) {
             return [
                 'status' => 'exists',
                 'message' => "Menu already exists in sidebar.",

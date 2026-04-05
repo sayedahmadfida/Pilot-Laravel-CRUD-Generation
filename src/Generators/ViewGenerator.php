@@ -10,6 +10,7 @@ class ViewGenerator
     public function generate($name, $columns = [])
     {
         $nameLower = Str::lower($name);
+        $variablePlural = Str::plural($name);
         $kebab = Str::kebab($name);      // ProductList → product-list
         $plural = Str::plural($kebab);   // product-list → product-lists
         $pageTitle = Str::title(str_replace('-', ' ', $plural));
@@ -42,8 +43,8 @@ class ViewGenerator
 <div class="row">
     <div class="col-xl-12 col-lg-12 col-sm-12 layout-top-spacing layout-spacing">
 
-        @include('pages.{$nameLower}.create')
-        @include('pages.{$nameLower}.edit')
+        @include('pages.{$kebab}.create')
+        @include('pages.{$kebab}.edit')
 
         <div class="card mt-2">
             <div class="card-header">
@@ -53,7 +54,7 @@ class ViewGenerator
                         <button
                             class="btn btn-primary btn-sm"
                             data-bs-toggle="modal"
-                            data-bs-target="#create-{$nameLower}-modal">
+                            data-bs-target="#create-{$kebab}-modal">
                             <span>Add New</span>
                         </button>
                     </div>
@@ -61,7 +62,7 @@ class ViewGenerator
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive mt-2 px-2">
-                    @include('pages.{$nameLower}.table')
+                    @include('pages.{$kebab}.table')
                 </div>
             </div>
         </div>
@@ -71,7 +72,7 @@ class ViewGenerator
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/js/{$nameLower}.js') }}"></script>
+<script src="{{ asset('assets/js/{$kebab}.js') }}"></script>
 @endsection
 BLADE;
 
@@ -114,14 +115,14 @@ BLADE;
         $thead .= '<th style="width:130px">Action</th>';
 
         $tableContent = <<<BLADE
-<table id="{$nameLower}-table" class="table table-bordered" style="width:100%">
+<table id="{$kebab}-table" class="table table-bordered" style="width:100%">
     <thead>
         <tr>
              $thead 
         </tr>
     </thead>
-    <tbody id="{$nameLower}-table-body">
-         @foreach (\${$plural} as \${$nameLower})
+    <tbody id="{$kebab}-table-body">
+         @foreach (\${$variablePlural} as \${$nameLower})
         <tr>
             <td>{{ \$loop->iteration }}</td>
             $tbody
@@ -144,7 +145,7 @@ BLADE;
     </tbody>
 </table>
 <div class="pagenate">
-    {{ \${$plural}->links('pagination::bootstrap-5') }}
+    {{ \${$variablePlural}->links('pagination::bootstrap-5') }}
 </div>
 BLADE;
 
@@ -230,16 +231,16 @@ HTML;
 }
 
 $editContent = <<<BLADE
-<div class="modal fade" data-bs-backdrop="static" id="edit-{$nameLower}-modal" tabindex="-1">
+<div class="modal fade" data-bs-backdrop="static" id="edit-{$kebab}-modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit {$title}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="edit-{$nameLower}-form" method="POST" novalidate>
+            <form id="edit-{$kebab}-form" method="POST" novalidate>
                 @csrf
-                <input type="hidden" id="edit-{$nameLower}-id" name="{$nameLower}_id">
+                <input type="hidden" id="edit-{$kebab}-id" name="{$nameLower}_id">
 
                 <div class="modal-body">
                     $formFields

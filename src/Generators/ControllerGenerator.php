@@ -25,6 +25,8 @@ class ControllerGenerator
         $plural = Str::plural($modelLower);
         $pluralMethod = Str::studly($plural);
         $viewFolder = Str::lower($name);
+        
+        $kebab = Str::kebab($name);    
 
         $content = <<<PHP
 <?php
@@ -45,7 +47,7 @@ class {$model}Controller extends Controller
     {
         \${$plural} = self::get{$pluralMethod}();
 
-        return view('pages.{$viewFolder}.index', compact('{$plural}'));
+        return view('pages.{$kebab}.index', compact('{$plural}'));
     }
 
     /**

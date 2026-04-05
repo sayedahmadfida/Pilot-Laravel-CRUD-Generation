@@ -8,10 +8,12 @@ class JsScriptGenerator
 {
     public function generate($name, $columns = [])
     {
-        $model = Str::studly($name);      // ProductList (JS object)
-$kebab = Str::kebab($name);       // product-list (file + selectors)
-$camel = Str::camel($name);       // productList (JS variables)
-$plural = Str::plural($kebab);    // product-lists (API routes)
+        
+        $model = ucfirst($name);
+        $modelLower = Str::lower($name);
+        $kebab = Str::kebab($name);       // product-list (file + selectors)
+        $camel = Str::camel($name);       // productList (JS variables)
+        $plural = Str::plural($kebab);    // product-lists (API routes)
 
         $jsPath = public_path("assets/js/{$kebab}.js");
 
@@ -41,7 +43,7 @@ $plural = Str::plural($kebab);    // product-lists (API routes)
 
             $field = $col['name'];
 
-            $renderColumns .= "<td>\${{$kebab}.{$field} ?? ''}</td>";
+            $renderColumns .= "<td>\${{$modelLower}.{$field} ?? ''}</td>";
         }
 
         /*
@@ -68,7 +70,7 @@ $plural = Str::plural($kebab);    // product-lists (API routes)
             } else {
 
                 $editFields .= "
-                $('#edit-{$field}').val(data.{$field} ?? '');
+                $('#edit-{$kebab}').val(data.{$kebab} ?? '');
                 ";
             }
         }
@@ -94,11 +96,11 @@ const {$model} = {
     */
     events() {
 
-        $(document).off('click', '.delete-{$kebab}')
-                   .on('click', '.delete-{$kebab}', (e) => this.delete(e));
+        $(document).off('click', '.delete-{$modelLower}')
+                   .on('click', '.delete-{$modelLower}', (e) => this.delete(e));
 
-        $(document).off('click', '.edit-{$kebab}')
-                   .on('click', '.edit-{$kebab}', (e) => this.edit(e));
+        $(document).off('click', '.edit-{$modelLower}')
+                   .on('click', '.edit-{$modelLower}', (e) => this.edit(e));
     },
 
     /*
@@ -125,7 +127,7 @@ const {$model} = {
 
                     UI.toast(res.message);
 
-                    const modal = document.getElementById('create-{$kebab}-modal');
+                    const modal = document.getElementById('create-{$modelLower}-modal');
                     if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
@@ -167,7 +169,7 @@ const {$model} = {
 
                     UI.toast(res.message);
 
-                    const modal = document.getElementById('edit-{$kebab}-modal');
+                    const modal = document.getElementById('edit-{$modelLower}-modal');
                     if (modal) bootstrap.Modal.getInstance(modal)?.hide();
 
                     form.reset();
@@ -231,7 +233,7 @@ const {$model} = {
         })
         .then(res => {
 
-            const data = res.{$kebab} || {};
+            const data = res.{$modelLower} || {};
 
             const form = $('#edit-{$kebab}-form')[0];
             if (form) form.reset();
@@ -267,25 +269,25 @@ const {$model} = {
 
         let startIndex = {$plural}.from ? {$plural}.from - 1 : 0;
 
-        {$plural}.data.forEach(({$kebab}, index) => {
+        {$plural}.data.forEach(({$modelLower}, index) => {
 
             tbody.append(`
                 <tr>
                     <td>\${startIndex + index + 1}</td>
                     {$renderColumns}
-                    <td>\${{$kebab}.created_at_formatted ?? ''}</td>
+                    <td>\${{$modelLower}.created_at_formatted ?? ''}</td>
                     <td>
                         <div class=\"d-flex justify-content-evenly\">
 
                             <a href=\"#\"
-                               class=\"delete-{$kebab}\"
-                               data-id=\"\${{$kebab}.encrypted_id}\">
+                               class=\"delete-{$modelLower}\"
+                               data-id=\"\${{$modelLower}.encrypted_id}\">
                                <i class=\"fa-solid fa-trash text-danger\"></i>
                             </a>
 
                             <a href=\"#\"
-                               class=\"edit-{$kebab}\"
-                               data-id=\"\${{$kebab}.encrypted_id}\">
+                               class=\"edit-{$modelLower}\"
+                               data-id=\"\${{$modelLower}.encrypted_id}\">
                                <i class=\"fa-solid fa-pen-to-square text-success\"></i>
                             </a>
 

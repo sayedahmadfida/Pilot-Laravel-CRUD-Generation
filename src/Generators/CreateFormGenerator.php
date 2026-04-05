@@ -8,9 +8,9 @@ class CreateFormGenerator
 {
     public function generate($name, $columns = [])
     {
-        $model = Str::studly($name);      // ProductList (for titles)
-$kebab = Str::kebab($name);      // product-list (for folder/URL)
-$variable = Str::camel($name);   // productList (for JS/IDs if needed)
+        $model = Str::studly($name);      
+        $kebab = Str::kebab($name);      
+        $variable = Str::camel($name);  
 
         $viewPath = resource_path("views/pages/{$kebab}/create.blade.php");
 
